@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
-const Zendesk = require('zendesk-node-api');
+const bodyParser = require('body-parser');
 
 /// settings
 app.set('port', process.env.PORT || 3000);
@@ -9,11 +9,12 @@ app.set('json spaces', 2);
 
 //midllwares
 app.use(morgan('dev'));
-app.use(express.urlencoded({extended: false}));
-app.use(express.json());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
 // router
 app.use(require('./routes/index.js'));
+
 
 /// setting server
 app.listen(3000, () => {
