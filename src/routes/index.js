@@ -1,6 +1,9 @@
 const { Router } = require('express');
 const router = Router();
 const Zendesk = require('zendesk-node-api');
+const Joi = require('joi');
+
+const userSchema = require('../../modelo/user');
 
 const zendesk = new Zendesk({
     url: 'https://chiper3095.zendesk.com',
@@ -9,12 +12,23 @@ const zendesk = new Zendesk({
 });
 
 
-//routes
+//  
 router.post('/create-user', (req, res) => {
     const data = req.body;
-    zendesk.users.create(data).then((x)=>{
-        res.json(x);
-    }).catch(err => res.json(err));
+    const result = Joi.validate(data, userSchema, { abortEarly: false });
+    if (result.error === null) {
+        data.phone = data.phone.toString();
+        zendesk.users.create(data).then((x)=>{
+            if (x.details) res.json(x.details);
+            res.json({
+                name: x.user.name,
+                phone: x.user.phone
+            });            
+        }).catch(err => res.json(err));
+    } else {
+        const mensaje = result.error.details.map(x => x.message);
+        res.json({mensaje: mensaje})    
+    }
 });
 
 router.get('/list-user', (req, res) => {
