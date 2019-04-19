@@ -14,8 +14,8 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 // router
-app.use(require('./routes/index.js'));
-
+app.use(require('./routes/user.routes.js'));
+app.use(require('./routes/chat.routes.js'));
 
 /// setting server
 app.listen(3000, () => {

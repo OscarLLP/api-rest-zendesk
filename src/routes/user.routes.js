@@ -12,8 +12,9 @@ const zendesk = new Zendesk({
 });
 
 
-//  
+//
 router.post('/create-user', (req, res) => {
+    console.log(req.body);
     const data = req.body;
     const result = Joi.validate(data, userSchema, { abortEarly: false });
     if (result.error === null) {
@@ -22,23 +23,34 @@ router.post('/create-user', (req, res) => {
             if (x.details) res.json(x.details);
             res.json({
                 name: x.user.name,
-                phone: x.user.phone
-            });            
+                phone: x.user.phone,
+                email: x.user.email
+
+            });
         }).catch(err => res.json(err));
     } else {
         const mensaje = result.error.details.map(x => x.message);
-        res.json({mensaje: mensaje})    
+        res.json({mensaje: mensaje})
     }
 });
 
 router.get('/list-user', (req, res) => {
-    zendesk.users.list().then(x => res.json(x)).catch(err => res.json(err));
+    zendesk.users.list().then(x => {
+        const miLista = x.map(user => {
+            return {
+                email: user.email,
+                id: user.id
+            }
+        })
+        res.json(miLista);
+    }).catch(err => res.json(err));
 });
 
 router.put('/update-user', (req, res) => {
     const data = req.body;
     zendesk.users.update(data.id, {
-        name: data.name
+        name: data.name,
+        email: data.email
     }).then((result) => {
         res.json(result);
     }).catch(err => res.json(err));
